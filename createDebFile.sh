@@ -1,8 +1,25 @@
 #!/usr/bin/env bash
-# check if dh-make is installed
+
+#muss be all lowecase
+package_name="myscripts"
+current_patch=1
 
 
-command -v basename >/dev/null 2>&1 || { echo >&2 "basename program is required but it's not installed.  Aborting."; exit 1; }
+#if set to true asumes that src is the output directory tree to the debian sistem
+# for example a executable tree would look like: ./src/usr/bin/executable
+# if set to false the relation between files and final location has to be deffined in file: outFileLocations
+use_src_as_dir_tree=false
+
+# if you want to place your compiled binaries, or scripts in another folder change this
+src_dir="src"
+
+package_dir=out
+
+
+
+
+
+
 
 
 
@@ -15,13 +32,31 @@ then
 fi
 
 
+## check for parameter patch version -p
+if [ "$1" == "-p" ]
+then
+  echo "patch version : $2"
+  current_patch=$2;
+fi
 
-echo "Reading config from \"createDebFile.conf\"" >&2
-source ./createDebFile.conf
 
-current_minor_version=$((current_minor_version + 1));
 
-echo "Starting build of Version $current_major_version.$current_minor_version"
+
+
+
+echo "Reading data from meta/control file"
+
+current_version=$(awk -F ":" '/^Version/ {print $2}' ./meta/control)
+current_version=${current_version//[[:blank:]]/}
+
+
+
+architecture=$(awk -F ":" '/^Architecture/ {print $2}' ./meta/control)
+architecture=${architecture//[[:blank:]]/}
+
+
+
+echo "Starting build of Version $current_version"
 
 
 # deleting old Build if it exists
@@ -33,6 +68,7 @@ mkdir ./build_temp
 
 # create the data folder to put binaries in
 mkdir ./build_temp/data
+
 
 
 if [ "$use_src_as_dir_tree" == "true" ];
@@ -88,9 +124,10 @@ cd build_temp
 
 echo 2.0 > ./debian-binary
 
-finalName="$package_name"_"$current_major_version.$current_minor_version-$current_patch"_"$architecture.deb"
+finalName="$package_name"_"$current_version-$current_patch"_"$architecture.deb"
 
 ar r $finalName debian-binary control.tar.gz data.tar.gz
+
 
 mv $finalName ../$package_dir
 
@@ -102,3 +139,5 @@ rm -rf ./build_temp
 echo "Done creating Debian package";
 
 exit 1
+
+
