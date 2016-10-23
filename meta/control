@@ -1,0 +1,15 @@
+Source: myscripts
+Section: unknown
+Priority: optional
+Maintainer: Andres Bott <contact@andresbott.com>
+Build-Depends: debhelper (>=9)
+Standards-Version: 3.9.6
+Homepage: andresbott.com
+#Vcs-Git: git://anonscm.debian.org/collab-maint/myscripts.git
+#Vcs-Browser: https://anonscm.debian.org/cgit/collab-maint/myscripts.git
+
+Package: myscripts
+Architecture: all
+Depends: php-cli
+Description:collection of usefull scripts by Andres Bott
+ This pacakge provides some usefull scripts 
