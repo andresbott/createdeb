@@ -1,27 +1,24 @@
 #!/usr/bin/env bash
 
-#muss be all lowecase
-package_name="myscripts"
+# define the default patch version
 current_patch=1
 
-
-#if set to true asumes that src is the output directory tree to the debian sistem
+# use src as finished system tree
+#
+# if set to true asumes that src is the output directory tree to the debian sistem
 # for example a executable tree would look like: ./src/usr/bin/executable
 # if set to false the relation between files and final location has to be deffined in file: outFileLocations
 use_src_as_dir_tree=false
 
 # if you want to place your compiled binaries, or scripts in another folder change this
-src_dir="src"
+src_dir="files"
 
-package_dir=out
+# name of the output folder
+package_dir="debian-packages"
 
-
-
-
-
-
-
-
+##############################################################################################################################
+##############   Config end here
+##############################################################################################################################
 
 ## clean the stage for generating a deb file
 if [ "$1" == "clean" ]
@@ -40,19 +37,32 @@ then
 fi
 
 
-
-
-
-
 echo "Reading data from meta/control file"
 
-current_version=$(awk -F ":" '/^Version/ {print $2}' ./meta/control)
+current_version=$(awk -F ":" '/^Version: / {print $2}' ./meta/control)
 current_version=${current_version//[[:blank:]]/}
+if [ "$current_version" == "" ]
+then
+  echo "Error: Version not defined in control file, exiting"
+  exit 0;
+fi
 
 
-
-architecture=$(awk -F ":" '/^Architecture/ {print $2}' ./meta/control)
+architecture=$(awk -F ":" '/^Architecture: / {print $2}' ./meta/control)
 architecture=${architecture//[[:blank:]]/}
+if [ "$architecture" == "" ]
+then
+  echo "Error: Architecture not defined in control file, exiting"
+  exit 0;
+fi
+
+package_name=$(awk -F ":" '/^Package: / {print $2}' ./meta/control)
+package_name=${package_name//[[:blank:]]/}
+if [ "$package_name" == "" ]
+then
+  echo "Error: Package not defined in control file, exiting"
+  exit 0;
+fi
 
 
 
@@ -124,10 +134,11 @@ cd build_temp
 
 echo 2.0 > ./debian-binary
 
-finalName="$package_name"_"$current_version-$current_patch"_"$architecture.deb"
+finalName=$package_name'_'$current_version'-'$current_patch'_'$architecture.deb;
 
 ar r $finalName debian-binary control.tar.gz data.tar.gz
 
+test -d "../$package_dir" || mkdir -p "../$package_dir"
 
 mv $finalName ../$package_dir
 
@@ -136,7 +147,7 @@ cd ..
 echo "Cleaning stage"
 rm -rf ./build_temp
 
-echo "Done creating Debian package";
+echo "Done creating Debian package: $finalName";
 
 exit 1
 

@@ -1,4 +1,4 @@
-Source: myscripts
+Package: myscripts
 Section: unknown
 Version: 0.1.1
 Priority: optional
@@ -6,7 +6,6 @@ Maintainer: Andres Bott <contact@andresbott.com>
 Build-Depends: debhelper (>=9)
 Standards-Version: 3.9.6
 Homepage: andresbott.com
-Package: myscripts
 Architecture: all
 Depends: php-cli
 Recommends: mplajer, lame, 	imagemagick
