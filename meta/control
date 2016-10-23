@@ -8,7 +8,6 @@ Homepage: andresbott.com
 Architecture: all
 Depends:
 Recommends:
-
 Tag: interface::commandline, devel, andresbott
 Description: Simple fast and dirty bash script to package binary files into deb files
  This pacakge provides a script used to package any kind of file like images, scripst etc into deb files in order to keep the system clean.
