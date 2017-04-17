@@ -1,24 +1,21 @@
 #!/usr/bin/env bash
 
-# define the default patch version
-current_patch=1
+ORIGIN=`readlink -f "$0"`
+BASE=`dirname $ORIGIN`
 
-# use src as finished system tree
-#
-# if set to true asumes that src is the output directory tree to the debian sistem
-# for example a executable tree would look like: ./src/usr/bin/executable
-# if set to false the relation between files and final location has to be deffined in file: outFileLocations
-use_src_as_dir_tree=false
+source createDebFile.conf
 
-# if you want to place your compiled binaries, or scripts in another folder change this
-src_dir="files"
+CONTROLFILE="$BASE/meta/control"
+version=` awk -F ':' '{if (! ($0 ~ /^;/) && $0 ~ /Version/) print $2}' $CONTROLFILE`
+version=${version//[[:blank:]]/}
+version1="${version%.*}.$((${version##*.}+1))"
+sed -i "/Version:/c\Version: $version1" $CONTROLFILE
 
-# name of the output folder
-package_dir="debian-packages"
+echo "increasing minor Release to: $version1"
+echo "Create deb File: "
+echo "$BASE/createDebFile.sh"
 
-##############################################################################################################################
-##############   Config end here
-##############################################################################################################################
+
 
 ## clean the stage for generating a deb file
 if [ "$1" == "clean" ]
@@ -148,6 +145,52 @@ echo "Cleaning stage"
 rm -rf ./build_temp
 
 echo "Done creating Debian package: $finalName";
+
+
+
+
+if [ $UPLOAD == True ]; then
+
+
+
+ORIGIN=`readlink -f "$0"`
+BASE=`dirname $ORIGIN`
+
+CONTROLFILE="$BASE/meta/control"
+version=` awk -F ':' '{if (! ($0 ~ /^;/) && $0 ~ /Version/) print $2}' $CONTROLFILE`
+version=${version//[[:blank:]]/}
+
+
+package=` awk -F ':' '{if (! ($0 ~ /^;/) && $0 ~ /Package/) print $2}' $CONTROLFILE`
+package=${package//[[:blank:]]/}
+
+arch=` awk -F ':' '{if (! ($0 ~ /^;/) && $0 ~ /Architecture/) print $2}' $CONTROLFILE`
+arch=${arch//[[:blank:]]/}
+
+NAME="$package""_""$version-1""_""$arch.deb"
+
+FULLFILE="$BASE/debian-packages/$NAME"
+
+echo $FULLFILE
+
+FULLREMOTE="$DESTREPO/$NAME"
+
+#echo "scp $FULLFILE $USER@$HOST:$FULLREMOTE"
+#
+#scp $FULLFILE $USER@$HOST:$FULLREMOTE
+#
+#
+### bettir with ssh key
+
+sftp $USER@$HOST  << SOMEDELIMITER
+  put $FULLFILE $DESTREPO
+  quit
+SOMEDELIMITER
+
+
+
+fi
+
 
 exit 1
 
