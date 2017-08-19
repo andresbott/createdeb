@@ -1,0 +1,13 @@
+Package: createdeb
+Section: dev
+Version: 0.2.0
+Priority: optional
+Maintainer: Andres Bott <contact@andresbott.com>
+Build-Depends:
+Homepage: https://github.com/AndresBott/createdeb
+Architecture: all
+Depends:
+Recommends:
+Tag: interface::commandline, devel, andresbott
+Description: Simple fast bash script to package binary files into deb files
+ This package provides a script used to package any kind of file like images, scripts etc into deb files in order to keep the system clean.
